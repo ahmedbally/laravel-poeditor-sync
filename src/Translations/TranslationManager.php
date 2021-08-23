@@ -109,6 +109,9 @@ class TranslationManager
      */
     protected function getPhpTranslations(string $folder)
     {
+        if (!$this->filesystem->isDirectory($folder)){
+            return [];
+        }
         $files = collect($this->filesystem->files($folder));
 
         $excludedFiles = collect(config('poeditor-sync.excluded_files', []))
