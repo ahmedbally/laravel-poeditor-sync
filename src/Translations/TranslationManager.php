@@ -43,7 +43,6 @@ class TranslationManager
         foreach ($translation_namespaces as $name=>$namespace){
             $phpTranslations=$this->getPhpTranslations($namespace."/{$locale}");
             $jsonTranslations= $this->getJsonTranslations($namespace."/{$locale}.json");
-            echo $name.' '.count($phpTranslations);
 
             $translations = array_merge(
                 $translations,
