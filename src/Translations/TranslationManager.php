@@ -41,10 +41,16 @@ class TranslationManager
             $this->getJsonTranslations(resource_path("lang/{$locale}.json")),
         );
         foreach ($translation_namespaces as $name=>$namespace){
+            $phpTranslations=$this->getPhpTranslations($namespace."/{$locale}");
+            $jsonTranslations=$this->getJsonTranslations($namespace."/{$locale}.json");
             $translations = array_merge(
                 $translations,
-                ['namespace_'.$name => $this->getPhpTranslations($namespace."/{$locale}")],
-                ['namespace_'.$name => $this->getJsonTranslations($namespace."/{$locale}.json")]
+                count($phpTranslations)? [
+                    'namespace_'.$name => $phpTranslations
+                ] : [],
+                count($jsonTranslations)? [
+                    'namespace_'.$name => $jsonTranslations
+                ] : []
             );
         }
 
@@ -114,7 +120,7 @@ class TranslationManager
      */
     protected function getPhpTranslations(string $folder)
     {
-        if (!$this->filesystem->isDirectory($folder)){
+        if (!$this->filesystem->exists($folder)){
             return [];
         }
         $files = collect($this->filesystem->files($folder));
