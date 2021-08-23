@@ -35,10 +35,18 @@ class TranslationManager
      */
     public function getTranslations(string $locale)
     {
+        $translation_namespaces =  app('translator')->getLoader()->namespaces();
         $translations = array_merge(
             $this->getPhpTranslations(resource_path("lang/{$locale}")),
             $this->getJsonTranslations(resource_path("lang/{$locale}.json")),
         );
+        foreach ($translation_namespaces as $namespace){
+            $translations = array_merge(
+                $translations,
+                $this->getPhpTranslations($namespace."/{$locale}"),
+                $this->getJsonTranslations($namespace."/{$locale}.json")
+            );
+        }
 
         if (config('poeditor-sync.include_vendor')) {
             $translations += $this->getVendorTranslations($locale);
@@ -239,7 +247,7 @@ class TranslationManager
             return;
         }
 
-        $this->filesystem->put($filename, json_encode($translations, JSON_PRETTY_PRINT));
+        $this->filesystem->put($filename, json_encode($translations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
     /**
