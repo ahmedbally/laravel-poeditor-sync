@@ -42,15 +42,18 @@ class TranslationManager
         );
         foreach ($translation_namespaces as $name=>$namespace){
             $phpTranslations=$this->getPhpTranslations($namespace."/{$locale}");
-            $jsonTranslations=$this->getJsonTranslations($namespace."/{$locale}.json");
+            $jsonTranslations= $this->getJsonTranslations($namespace."/{$locale}.json");
+            echo $name.' '.count($phpTranslations);
+
             $translations = array_merge(
                 $translations,
-                count($phpTranslations)? [
-                    'namespace_'.$name => $phpTranslations
+                count($phpTranslations) || count($jsonTranslations)? [
+                    'namespace_'.$name => array_merge(
+                        $phpTranslations,
+                        $jsonTranslations
+                    )
                 ] : [],
-                count($jsonTranslations)? [
-                    'namespace_'.$name => $jsonTranslations
-                ] : []
+                $this->getJsonTranslations($namespace."/{$locale}.json")
             );
         }
 
