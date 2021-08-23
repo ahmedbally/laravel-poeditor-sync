@@ -74,9 +74,11 @@ class TranslationManager
         $this->createEmptyLocaleFolder($locale);
         $translation_namespaces =  app('translator')->getLoader()->namespaces();
         foreach ($translation_namespaces as $name => $namespace){
-            $this->createPhpTranslationNamespaceFiles($namespace, $translations['namespace_'.$name], $locale);
-            $this->createJsonTranslationNamespaceFile($namespace, $translations['namespace_'.$name], $locale);
-            unset($translations['namespace_'.$name]);
+            if (array_key_exists('namespace_'.$name,$translations)) {
+                $this->createPhpTranslationNamespaceFiles($namespace, $translations['namespace_' . $name], $locale);
+                $this->createJsonTranslationNamespaceFile($namespace, $translations['namespace_' . $name], $locale);
+                unset($translations['namespace_' . $name]);
+            }
         }
         $this->createPhpTranslationFiles($translations, $locale);
         $this->createJsonTranslationFile($translations, $locale);
