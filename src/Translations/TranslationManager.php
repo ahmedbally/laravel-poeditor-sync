@@ -40,11 +40,11 @@ class TranslationManager
             $this->getPhpTranslations(resource_path("lang/{$locale}")),
             $this->getJsonTranslations(resource_path("lang/{$locale}.json")),
         );
-        foreach ($translation_namespaces as $namespace){
+        foreach ($translation_namespaces as $name=>$namespace){
             $translations = array_merge(
                 $translations,
-                $this->getPhpTranslations($namespace."/{$locale}"),
-                $this->getJsonTranslations($namespace."/{$locale}.json")
+                [$name => $this->getPhpTranslations($namespace."/{$locale}")],
+                [$name => $this->getJsonTranslations($namespace."/{$locale}.json")]
             );
         }
 
@@ -66,7 +66,12 @@ class TranslationManager
     public function createTranslationFiles(array $translations, string $locale)
     {
         $this->createEmptyLocaleFolder($locale);
-
+        $translation_namespaces =  app('translator')->getLoader()->namespaces();
+        foreach ($translation_namespaces as $name => $namespace){
+            $this->createPhpTranslationNamespaceFiles($namespace, $translations[$name], $locale);
+            $this->createJsonTranslationNamespaceFile($namespace, $translations[$name], $locale);
+            unset($translations[$name]);
+        }
         $this->createPhpTranslationFiles($translations, $locale);
         $this->createJsonTranslationFile($translations, $locale);
 
@@ -164,6 +169,19 @@ class TranslationManager
     }
 
     /**
+     * Create PHP translation files containing arrays for namespace.
+     *
+     * @param array $translations
+     * @param string $locale
+     *
+     * @return void
+     */
+    protected function createPhpTranslationNamespaceFiles(string $namespace, array $translations, string $locale)
+    {
+        $this->createPhpFiles(resource_path($namespace."/{$locale}"), $translations);
+    }
+
+    /**
      * Create JSON translation file containing arrays.
      *
      * @param array $translations
@@ -174,6 +192,19 @@ class TranslationManager
     protected function createJsonTranslationFile(array $translations, string $locale)
     {
         $this->createJsonFile(resource_path("lang/{$locale}.json"), $translations);
+    }
+
+    /**
+     * Create JSON translation file containing arrays for namespace.
+     *
+     * @param array $translations
+     * @param string $locale
+     *
+     * @return void
+     */
+    protected function createJsonTranslationNamespaceFile(string $namespace, array $translations, string $locale)
+    {
+        $this->createJsonFile(resource_path($namespace."/{$locale}.json"), $translations);
     }
 
     /**
@@ -214,6 +245,7 @@ class TranslationManager
      */
     protected function createPhpFiles(string $folder, array $translations)
     {
+
         $translations = Arr::where($translations, function ($translation) {
             return is_array($translation);
         });
