@@ -43,8 +43,8 @@ class TranslationManager
         foreach ($translation_namespaces as $name=>$namespace){
             $translations = array_merge(
                 $translations,
-                [$name => $this->getPhpTranslations($namespace."/{$locale}")],
-                [$name => $this->getJsonTranslations($namespace."/{$locale}.json")]
+                ['namespace_'.$name => $this->getPhpTranslations($namespace."/{$locale}")],
+                ['namespace_'.$name => $this->getJsonTranslations($namespace."/{$locale}.json")]
             );
         }
 
@@ -68,9 +68,9 @@ class TranslationManager
         $this->createEmptyLocaleFolder($locale);
         $translation_namespaces =  app('translator')->getLoader()->namespaces();
         foreach ($translation_namespaces as $name => $namespace){
-            $this->createPhpTranslationNamespaceFiles($namespace, $translations[$name], $locale);
-            $this->createJsonTranslationNamespaceFile($namespace, $translations[$name], $locale);
-            unset($translations[$name]);
+            $this->createPhpTranslationNamespaceFiles($namespace, $translations['namespace_'.$name], $locale);
+            $this->createJsonTranslationNamespaceFile($namespace, $translations['namespace_'.$name], $locale);
+            unset($translations['namespace_'.$name]);
         }
         $this->createPhpTranslationFiles($translations, $locale);
         $this->createJsonTranslationFile($translations, $locale);
@@ -178,7 +178,7 @@ class TranslationManager
      */
     protected function createPhpTranslationNamespaceFiles(string $namespace, array $translations, string $locale)
     {
-        $this->createPhpFiles(resource_path($namespace."/{$locale}"), $translations);
+        $this->createPhpFiles($namespace."/{$locale}", $translations);
     }
 
     /**
@@ -204,7 +204,7 @@ class TranslationManager
      */
     protected function createJsonTranslationNamespaceFile(string $namespace, array $translations, string $locale)
     {
-        $this->createJsonFile(resource_path($namespace."/{$locale}.json"), $translations);
+        $this->createJsonFile($namespace."/{$locale}.json", $translations);
     }
 
     /**
