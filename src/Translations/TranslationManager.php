@@ -52,7 +52,6 @@ class TranslationManager
                         $jsonTranslations
                     )
                 ] : [],
-                $this->getJsonTranslations($namespace."/{$locale}.json")
             );
         }
 
